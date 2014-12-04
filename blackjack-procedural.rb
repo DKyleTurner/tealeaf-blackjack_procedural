@@ -1,6 +1,8 @@
 ###################################################################################################
+player_cards = []
+dealer_cards = []
 
-player_card_total = 0
+player_card_total = ""
 dealer_card_total = 0
 
 dealer_hits = false
@@ -9,18 +11,18 @@ dealer_stays = false
 ###################################################################################################
 
 ###################################################################################################
-# Need to iterate through 'suited_cards' and 'deal' random cards while also removing them
-# Ace can equal 1 or 11 depending on the circumstance - if 11 causes the player to bust, it equals
-# 1, if not, it equals 11
-numbered_cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-face_cards = {jack: 10, queen: 10, king: 10}
+# PICKS A RANDOM 'FACE' AND 'SUIT' - HOW TO REMOVE EACH CARD AFTER IT IS USED?
+card_values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'king', 'queen', 'jack', 'ace']
+card_suits = ['hearts', 'diamonds', 'clubs', 'spades']
 
 suited_cards = {
-    hearts: [[numbered_cards], [face_cards]],
-    clubs: [[numbered_cards], [face_cards]],
-    spades: [[numbered_cards], [face_cards]],
-    diamonds: [[numbered_cards], [face_cards]]
+    card_suits => card_values,
 }
+
+suited_cards.each_pair do |k, v|
+  puts "#{v.sample} of #{k.sample}"
+end
+
 ###################################################################################################
 
 ###################################################################################################
@@ -48,22 +50,3 @@ def dealer_hit_or_stay(dealer_sum)
 end
 
 ###################################################################################################
-
-###################################################################################################
-
-player_cards = []
-
-# Right now, this method loops through the 'numbered_cards' array and stops the loop when it is
-# more than 21 - Need to remove each number and corresponding suit from the hash
-while player_card_total <= 21
-  player_cards.push(numbered_cards.sample)
-  player_cards.each {|num| player_card_total += num}
-  # puts player_cards
-  # if player_card_total > 21
-  #   puts 'You lose!'
-  # end
-end
-
-###################################################################################################
-
-
