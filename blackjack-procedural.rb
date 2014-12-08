@@ -83,3 +83,5 @@ end until player_response.downcase == 'exit'
 # Need to fix the messages that are displayed at the end of the game
 # Don't need to keep printing 'dealer stays' after the game is over
 # Need to add a betting system
+# In the event of a tie, the bet money should be carried over to the next game
+# In the event of a push, 'next game' should be a continuation of the previous game
