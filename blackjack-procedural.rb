@@ -1,3 +1,5 @@
+require 'pry'
+
 def sum_cards(hand)
   cards_total = hand.map {|i| i[0]}
   added_cards = 0
@@ -7,81 +9,97 @@ def sum_cards(hand)
   added_cards
 end
 
-def check_for_game_end(player_score, dealer_score)
-  msg = "Blackjack! You win!" if player_score == 21 && dealer_score < 21
-  msg = "It's a tie! Push!" if player_score == dealer_score
-  msg = "Blackjack! You lose!" if player_score < 21 && dealer_score == 21
-  msg = "Player busts! You lose!"if player_score > 21 && dealer_score < 21
-  msg = "Dealer busts! You win!" if player_score < 21 && dealer_score > 21
-  msg
-end
-
 def card_display(cards)
   hand = cards.map {|i| i}
   hand.each {|val| puts "#{val[0]} of #{val[1]}"}
 end
 
 # Greeting
-puts 'This...Is...BLACKJACK!'
+puts "This...Is...BLACKJACK!\n"
 puts "\n"
-
-# Card suits
 card_suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
-
-# Card values
 card_values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'Ace']
 
 # Combine the 2 arrays then shuffle the deck
-deck_of_cards = card_values.product(card_suits).shuffle!
+  deck_of_cards = card_values.product(card_suits).shuffle!
+
+####### NEED 4 DECKS OF CARDS, SHUFFLED - 'player_cards' etc WILL USE THE NEW 'SHOE'########
+a = deck_of_cards.dup
+shoe = a + deck_of_cards
+puts shoe.length
 
 # Initialize player and dealer hands
 dealer_cards = []
 player_cards = []
 
-# Start the game
-2.times do
-  player_cards << deck_of_cards.pop
-  dealer_cards << deck_of_cards.pop
-end
+player_cards << deck_of_cards.pop
+dealer_cards << deck_of_cards.pop
+player_cards << deck_of_cards.pop
+dealer_cards << deck_of_cards.pop
+
+dealer_total = 0
+player_total = 0
 
 begin
+
+  player_total = sum_cards(player_cards)
   puts "Player Cards:"
   puts "~~~~~~~~~~~~~"
   card_display(player_cards)
-  player_total = sum_cards(player_cards)
   puts "\nPlayer Total: #{player_total}"
-
-  puts "\nDealer Cards:"
-  puts "~~~~~~~~~~~~~~~"
-  card_display(dealer_cards)
-  dealer_total = sum_cards(dealer_cards)
-  puts "\nDealer Total: #{dealer_total}"
-  puts "\n"
-
-  dealer_cards << deck_of_cards.pop if dealer_total < 17
-  puts "Dealer stays." if dealer_total >= 17
-
-  end_game_msg = check_for_game_end(player_total, dealer_total)
-  puts end_game_msg
-
+  puts "Shoe #{shoe.length}"
   puts "Hit or Stay?"
   player_response = gets.chomp
 
-  player_cards << deck_of_cards.pop if player_response.downcase == 'hit'
-
-  if player_response.downcase == "stay"
-    check_for_game_end(player_total, dealer_total)
-    puts end_game_msg
-  else
-    puts "Please choose a valid command."
+  if player_response.downcase == 'hit'
+    system('clear')
+    player_cards << deck_of_cards.pop
+    player_total = sum_cards(player_cards)
+    puts "\nPlayer Total: #{player_total}"
+  if player_total == 21
+    puts "Blackjack! Player wins!!"
+  elsif player_total > 21
+    puts "Player busts...you lose..."
+    exit
   end
-  system('clear')
-end until player_response.downcase == 'exit'
 
-# 'Please choose...' output doesn't work
-# Need a 'Play Again?' method
-# Need to fix the messages that are displayed at the end of the game
-# Don't need to keep printing 'dealer stays' after the game is over
-# Need to add a betting system
-# In the event of a tie, the bet money should be carried over to the next game
-# In the event of a push, 'next game' should be a continuation of the previous game
+  elsif player_response.downcase == "stay"
+    system('clear')
+    puts ">PLAYER STAYS AT #{player_total}<"
+    break
+  else
+    system('clear')
+    puts "Please choose one of the valid commands"
+  end
+end while player_total < 22
+
+begin
+  dealer_total = sum_cards(dealer_cards)
+  puts "Dealer Cards:"
+  puts "~~~~~~~~~~~~~~~"
+  card_display(dealer_cards)
+  puts "Dealer Total: #{dealer_total}"
+  if dealer_total > 16 && dealer_total < 21
+    puts "Dealer stays at #{dealer_total}."
+    break
+  elsif dealer_total < 17
+    puts "Dealer hits"
+    dealer_cards << deck_of_cards.pop
+  elsif dealer_total > 21
+    puts "Dealer busts."
+    break
+  elsif dealer_total == 21
+    puts "Dealer blackjack."
+    break
+  end
+end while dealer_total < 22
+
+if player_response.downcase == 'stay'
+  if player_total > dealer_total && player_total < 21
+    puts "Player wins!"
+  elsif player_total < dealer_total && dealer_total < 21
+    puts "Dealer wins!"
+  elsif player_total == dealer_total && player_total < 21
+    puts "Push! It's a tie!"
+  end
+end
