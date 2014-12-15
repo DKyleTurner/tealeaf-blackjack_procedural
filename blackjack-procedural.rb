@@ -4,7 +4,14 @@ def sum_cards(hand)
   cards_total = hand.map {|i| i[0]}
   added_cards = 0
   cards_total.each do |val|
-    (val.to_i == 0) ? added_cards += 10 : added_cards += val
+    if val == 'Ace'
+      added_cards += 11
+    elsif val.to_i == 0
+      added_cards += 10
+      else
+        added_cards += val
+    end
+      added_cards -=10 if val == 'Ace' && added_cards > 21
   end
   added_cards
 end
@@ -24,9 +31,9 @@ card_values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'Ace']
   deck_of_cards = card_values.product(card_suits).shuffle!
 
 ####### NEED 4 DECKS OF CARDS, SHUFFLED - 'player_cards' etc WILL USE THE NEW 'SHOE'########
-a = deck_of_cards.dup
-shoe = a + deck_of_cards
-puts shoe.length
+# a = deck_of_cards.dup
+# shoe = a + deck_of_cards
+# puts shoe.length
 
 # Initialize player and dealer hands
 dealer_cards = []
@@ -41,13 +48,15 @@ dealer_total = 0
 player_total = 0
 
 begin
+  puts "* Dealer card: #{dealer_cards.first.first} of #{dealer_cards.first.last} *"
+  puts "\n"
 
   player_total = sum_cards(player_cards)
   puts "Player Cards:"
   puts "~~~~~~~~~~~~~"
   card_display(player_cards)
   puts "\nPlayer Total: #{player_total}"
-  puts "Shoe #{shoe.length}"
+  # puts "Shoe #{shoe.length}"
   puts "Hit or Stay?"
   player_response = gets.chomp
 
@@ -55,20 +64,37 @@ begin
     system('clear')
     player_cards << deck_of_cards.pop
     player_total = sum_cards(player_cards)
-    puts "\nPlayer Total: #{player_total}"
+    # puts "\nPlayer Total: #{player_total}"
   if player_total == 21
-    puts "Blackjack! Player wins!!"
+    system('clear')
+    puts "Player Cards:"
+    puts "~~~~~~~~~~~~~"
+    card_display(player_cards)
+    puts "\nPlayer Total: #{player_total}"
+    puts "\n* * * * * * * * * * * * * * *"
+    puts "> PLAYER BLACKJACK! YOU WIN! <"
+    puts "* * * * * * * * * * * * * * *"
+    puts "\n"
+    exit
   elsif player_total > 21
-    puts "Player busts...you lose..."
+    system('clear')
+    puts "Player Cards:"
+    puts "~~~~~~~~~~~~~"
+    card_display(player_cards)
+    puts "\nPlayer Total: #{player_total}"
+    puts "\n* * * * * * * * * * * * * * *"
+    puts "> PLAYER BUSTS. HOUSE WINS. <"
+    puts "* * * * * * * * * * * * * * *"
+    puts "\n"
     exit
   end
 
   elsif player_response.downcase == "stay"
-    system('clear')
-    puts ">PLAYER STAYS AT #{player_total}<"
+    puts"\n"
+    puts "> PLAYER STAYS AT #{player_total} <"
+    puts "\n"
     break
   else
-    system('clear')
     puts "Please choose one of the valid commands"
   end
 end while player_total < 22
@@ -80,26 +106,45 @@ begin
   card_display(dealer_cards)
   puts "Dealer Total: #{dealer_total}"
   if dealer_total > 16 && dealer_total < 21
-    puts "Dealer stays at #{dealer_total}."
+    puts "\n"
+    puts "> DEALER STAYS AT #{dealer_total} <"
+    puts "\n"
     break
   elsif dealer_total < 17
-    puts "Dealer hits"
+    puts "\n"
+    puts ">DEALER HITS<"
+    puts "\n"
     dealer_cards << deck_of_cards.pop
   elsif dealer_total > 21
-    puts "Dealer busts."
+    puts "\n* * * * * * * * * * * * * *"
+    puts " > DEALER BUSTS! YOU WIN! <"
+    puts "* * * * * * * * * * * * * *"
+    puts "\n"
     break
   elsif dealer_total == 21
-    puts "Dealer blackjack."
+    puts "\n* * * * * * * * * * * * * * * *"
+    puts "> DEALER BLACKJACK. HOUSE WINS. <"
+    puts "* * * * * * * * * * * * * * * *"
+    puts "\n"
     break
   end
 end while dealer_total < 22
 
 if player_response.downcase == 'stay'
   if player_total > dealer_total && player_total < 21
-    puts "Player wins!"
+    puts "\n* * * * * * * * * * * * * *"
+    puts "      > PLAYER WINS! <"
+    puts "* * * * * * * * * * * * * *"
+    puts "\n"
   elsif player_total < dealer_total && dealer_total < 21
-    puts "Dealer wins!"
+    puts "\n* * * * * * * * * * * * * *"
+    puts "      > DEALER WINS. <"
+    puts "* * * * * * * * * * * * * *"
+    puts "\n"
   elsif player_total == dealer_total && player_total < 21
-    puts "Push! It's a tie!"
+    puts "\n* * * * * * * * * * * * * *"
+    puts "  > PUSH, IT'S A TIE! <"
+    puts "* * * * * * * * * * * * * *"
+    puts "\n"
   end
 end
