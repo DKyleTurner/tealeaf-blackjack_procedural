@@ -4,14 +4,20 @@ def sum_cards(hand)
   cards_total = hand.map {|i| i[0]}
   added_cards = 0
   cards_total.each do |val|
-    if val == 'Ace'
-      added_cards += 11
-    elsif val.to_i == 0
+    if val.to_i == 0 && val != 'Ace'
       added_cards += 10
-      else
-        added_cards += val
+    elsif val == 'Ace'
+      added_cards += 11
+    else
+      added_cards += val
     end
-      added_cards -=10 if val == 'Ace' && added_cards > 21
+    if added_cards > 21
+      hand.each do |v|
+        if v.last == 'Ace'
+          player_total -= 10
+        end
+      end
+    end
   end
   added_cards
 end
@@ -24,25 +30,29 @@ end
 # Greeting
 puts "This...Is...BLACKJACK!\n"
 puts "\n"
+puts "You look lucky! What's your name?"
+player_name = gets.chomp
 card_suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
 card_values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'Ace']
 
 # Combine the 2 arrays then shuffle the deck
-  deck_of_cards = card_values.product(card_suits).shuffle!
+deck_of_cards = card_values.product(card_suits).shuffle!
 
 ####### NEED 4 DECKS OF CARDS, SHUFFLED - 'player_cards' etc WILL USE THE NEW 'SHOE'########
-# a = deck_of_cards.dup
-# shoe = a + deck_of_cards
-# puts shoe.length
+shoe = deck_of_cards.dup
+
+2.times do
+  shoe += shoe
+end
 
 # Initialize player and dealer hands
 dealer_cards = []
 player_cards = []
 
-player_cards << deck_of_cards.pop
-dealer_cards << deck_of_cards.pop
-player_cards << deck_of_cards.pop
-dealer_cards << deck_of_cards.pop
+player_cards << shoe.pop
+dealer_cards << shoe.pop
+player_cards << shoe.pop
+dealer_cards << shoe.pop
 
 dealer_total = 0
 player_total = 0
@@ -52,49 +62,60 @@ begin
   puts "\n"
 
   player_total = sum_cards(player_cards)
-  puts "Player Cards:"
+
+  puts "#{player_name}'s Cards:"
   puts "~~~~~~~~~~~~~"
   card_display(player_cards)
-  puts "\nPlayer Total: #{player_total}"
-  # puts "Shoe #{shoe.length}"
+  puts "\n#{player_name}'s Total: #{player_total}"
   puts "Hit or Stay?"
   player_response = gets.chomp
 
   if player_response.downcase == 'hit'
     system('clear')
-    player_cards << deck_of_cards.pop
+    player_cards << shoe.pop
     player_total = sum_cards(player_cards)
-    # puts "\nPlayer Total: #{player_total}"
+    player_cards.each do |val|
+      if val.last == 'Ace' && player_total > 21
+        player_total -= 10
+      end
+    end
   if player_total == 21
     system('clear')
-    puts "Player Cards:"
+    puts "#{player_name}'s Cards:"
     puts "~~~~~~~~~~~~~"
     card_display(player_cards)
-    puts "\nPlayer Total: #{player_total}"
-    puts "\n* * * * * * * * * * * * * * *"
-    puts "> PLAYER BLACKJACK! YOU WIN! <"
-    puts "* * * * * * * * * * * * * * *"
+    puts "\n#{player_name}'s Total: #{player_total}"
+    puts "\n* * * * * * * * * * * * * * * * * * * * *"
+    puts "> #{player_name.upcase} GOT BLACKJACK! YOU WIN! <"
+    puts "* * * * * * * * * * * * * * * * * * * * * "
     puts "\n"
     exit
   elsif player_total > 21
     system('clear')
-    puts "Player Cards:"
+    puts "#{player_name}'s Cards:"
     puts "~~~~~~~~~~~~~"
     card_display(player_cards)
-    puts "\nPlayer Total: #{player_total}"
+    puts "\n#{player_name}'s: #{player_total}"
     puts "\n* * * * * * * * * * * * * * *"
-    puts "> PLAYER BUSTS. HOUSE WINS. <"
+    puts "> #{player_name.upcase} BUSTS. HOUSE WINS. <"
     puts "* * * * * * * * * * * * * * *"
     puts "\n"
     exit
   end
-
   elsif player_response.downcase == "stay"
     puts"\n"
-    puts "> PLAYER STAYS AT #{player_total} <"
+    puts "> #{player_name.upcase} STAYS AT #{player_total} <" if
     puts "\n"
+    puts
+      if player_total == 21
+        puts "\n* * * * * * * * * * * * * * * * * * * * *"
+        puts "> #{player_name} GOT BLACKJACK! YOU WIN! <"
+        puts "* * * * * * * * * * * * * * * * * * * * * "
+        puts "\n"
+      end
     break
   else
+    system('clear')
     puts "Please choose one of the valid commands"
   end
 end while player_total < 22
@@ -114,7 +135,7 @@ begin
     puts "\n"
     puts ">DEALER HITS<"
     puts "\n"
-    dealer_cards << deck_of_cards.pop
+    dealer_cards << shoe.pop
   elsif dealer_total > 21
     puts "\n* * * * * * * * * * * * * *"
     puts " > DEALER BUSTS! YOU WIN! <"
